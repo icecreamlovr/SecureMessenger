@@ -20,15 +20,15 @@ class RegistrationForm extends React.Component {
 
   handleUsernameInput = (event) => {
     event.preventDefault();
-    this.username({
-      email: event.target.value
+    this.setState({
+      username: event.target.value
     });
   }
 
   handlePasswordInput = (event) => {
     event.preventDefault();
-    this.password({
-      email: event.target.value
+    this.setState({
+      password: event.target.value
     });
   }
 
