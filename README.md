@@ -2,7 +2,8 @@
 
 Secure message system with End-to-End encryption.
 
-Collaborator: Yucheng Gong
+Collaborator: Yue He, Yucheng Gong
+
 ### Install dependencies
 
 - Java (17 or above)
