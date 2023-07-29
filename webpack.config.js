@@ -1,13 +1,16 @@
 var path = require('path');
 
 module.exports = {
-    entry: './src/main/js/app.js',
+    entry: {
+        app: './src/main/js/app.js',
+        registration: './src/main/js/registration.js'
+    },
     devtool: 'source-map',
     cache: true,
     mode: 'development',
     output: {
         path: __dirname,
-        filename: './src/main/resources/static/built/react-app.js'
+        filename: './src/main/resources/static/built/react-[name].js'
     },
     module: {
         rules: [{
