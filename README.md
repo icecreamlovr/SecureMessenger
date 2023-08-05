@@ -2,7 +2,7 @@
 
 Secure message system with End-to-End encryption.
 
-Collaborator: Yue He, Yucheng Gong
+Collaborator: Yue He, Yucheng Gong, Haonan Wang
 
 ### Install dependencies
 
