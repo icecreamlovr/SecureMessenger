@@ -20,6 +20,11 @@ public class MessengerController {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @GetMapping("/signup")
+    public String registrationPage() {
+        return "registration";
+    }
+
     @GetMapping("/messenger")
     public String index() {
         return "index";
