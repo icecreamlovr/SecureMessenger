@@ -3,7 +3,8 @@ var path = require('path');
 module.exports = {
     entry: {
         app: './src/main/js/app.js',
-        registration: './src/main/js/registration.js'
+        registration: './src/main/js/registration.js',
+        login: './src/main/js/login.js'
     },
     devtool: 'source-map',
     cache: true,

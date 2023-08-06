@@ -25,6 +25,11 @@ public class MessengerController {
         return "registration";
     }
 
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
     @GetMapping("/messenger")
     public String index() {
         return "index";
