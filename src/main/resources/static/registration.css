@@ -1,48 +1,86 @@
 body {
-  font-family: Arial, sans-serif;
+	background: #f6f5f7;
   display: flex;
   justify-content: center;
   align-items: center;
+	flex-direction: column;
+  font-family: Arial, sans-serif;
   height: 100vh;
-  margin: 0;
+	margin: -20px 0 50px;
 }
 
-.registration-form {
-  max-width: 400px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+div.signup {
+	position: relative;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25),
+			0 10px 10px rgba(0,0,0,0.22);
+	top: 0;
+	height: 100%;
+	transition: all 0.6s ease-in-out;
+  border-radius: 10px;
+
+	overflow: hidden;
+	width: 384px;
+	max-width: 100%;
+	min-height: 480px;
 }
 
-.form-group {
-  margin-bottom: 15px;
+.form-container {
+	background-color: #FFFFFF;
+	align-items: center;
+	justify-content: center;
+	display: flex;
+	flex-direction: column;
+	padding: 0 50px;
+	height: 100%;
+	text-align: center;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+h1 {
+	font-weight: bold;
+	margin: 0;
+	text-align: center;
 }
 
-.form-group input {
+h2 {
+	text-align: center;
+}
+
+input {
+	background-color: #eee;
+	margin: 8px 0;
+	border: none;
+	padding: 12px 15px;
+	width: 100%;
+}
+
+input:focus {
+	outline: none;
+}
+
+button {
+  margin-top: 30px;
+	border-radius: 20px;
+	border: 1px solid #FF4B2B;
+  padding: 15px 0;
   width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.form-group button {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #007BFF;
-  border: none;
-  border-radius: 4px;
+	background-color: #FF4B2B;
+	color: #FFFFFF;
+	font-size: 18px;
+	font-weight: bold;
+	letter-spacing: 1px;
+/* 	transition: transform 80ms ease-in; */
   cursor: pointer;
 }
 
-.form-group button:hover {
-  background-color: #0056b3;
+/* button:hover {
+  background-color: #cc1f00;
+	border: 1px solid #cc1f00;
+} */
+
+button:focus {
+	outline: none;
+}
+
+button:active {
+	transform: scale(0.99);
 }
