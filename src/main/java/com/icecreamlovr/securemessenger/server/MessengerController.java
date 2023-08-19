@@ -2,7 +2,11 @@ package com.icecreamlovr.securemessenger.server;
 
 import com.icecreamlovr.securemessenger.server.models.MessageRequest;
 import com.icecreamlovr.securemessenger.server.models.MessageResponse;
+import com.icecreamlovr.securemessenger.server.models.SignupRequest;
 import com.icecreamlovr.securemessenger.server.authentication.PasswordHash;
+
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -20,9 +24,30 @@ public class MessengerController {
     @Autowired
     private ApplicationContext applicationContext;
 
+
     @GetMapping("/signup")
     public String registrationPage() {
         return "registration";
+    }
+
+    private static ConcurrentHashMap<String, List<String>> users = new ConcurrentHashMap<>();
+
+    @PostMapping(
+            value = "/signup", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public String register(@RequestBody SignupRequest request) {
+        // There will still be race condition, because check and set are not atomic
+        if (users.containsKey(request.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
+        users.put(request.getEmail(), List.of(request.getUsername(), request.getPassword()));
+        return "success";
+    }
+
+    @GetMapping("/signup-test")
+    @ResponseBody
+    public ConcurrentHashMap<String, List<String>> registerTest() {
+        return users;
     }
 
     @GetMapping("/login")
