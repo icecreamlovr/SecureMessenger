@@ -7,7 +7,8 @@ class SignupForm extends React.Component {
     this.state = {
       username: "",
       email: "",
-      password: ""
+      password: "",
+      resultText: ""
     };
   }
 
@@ -34,7 +35,33 @@ class SignupForm extends React.Component {
 
   handleSignup = (event) => {
     event.preventDefault();
-    console.log(">>>" + this.state.email + ">" + this.state.username + ">" + this.state.password + ">");
+
+    const baseUrl = "http://" + window.location.host;
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: this.state.email, username: this.state.username, password: this.state.password })
+    };
+
+    fetch(baseUrl + "/signup", requestOptions)
+      .then(response => {
+        if (response.ok) {
+          // Expect text on success
+          return response.text();
+        } else {
+          // Expect JSON on error
+          return response.json().then(response => {
+            throw { status: response.status, message: response.message };
+          });
+
+        }
+      })
+      .then(data => {
+        this.setState({resultText: "Signed up successfully!"});
+      })
+      .catch(error => {
+        this.setState({resultText: "Signed up failed: " + error.message});
+      });
   }
 
   render() {
@@ -43,6 +70,7 @@ class SignupForm extends React.Component {
         <div className="form-container">
           <h1>Messenger</h1>
           <h2>Create Account</h2>
+          <div className="signupResult"><label>{this.state.resultText}</label></div>
           <input type="text" id="username" placeholder="Name" onInput={this.handleUsernameInput}/>
           <input type="email" id="email" placeholder="Email" onInput={this.handleEmailInput}/>
           <input type="password" id="password" placeholder="Password"  onInput={this.handlePasswordInput}/>
