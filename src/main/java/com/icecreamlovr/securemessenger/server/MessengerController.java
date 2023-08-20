@@ -6,7 +6,6 @@ import com.icecreamlovr.securemessenger.server.models.SignupRequest;
 import com.icecreamlovr.securemessenger.server.authentication.PasswordHash;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @Controller
 public class MessengerController {
@@ -24,30 +24,69 @@ public class MessengerController {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @GetMapping("/signup")
     public String registrationPage() {
         return "registration";
     }
 
-    private static ConcurrentHashMap<String, List<String>> users = new ConcurrentHashMap<>();
+    // Check if email already exists
+    private boolean isEmailInUse(String email) {
+        String query = String.format("SELECT * from users where email = '%s'", email);
+        List<String> result = jdbcTemplate.query(
+                query,
+                (rs, rowNum) -> rs.getString("email")
+            );
+        return !result.isEmpty();
+    }
+
+    // Check if email already exists
+    private boolean isUsernameInUse(String username) {
+        String query = String.format("SELECT * from users where username = '%s'", username);
+        List<String> result = jdbcTemplate.query(
+                query,
+                (rs, rowNum) -> rs.getString("username")
+        );
+        return !result.isEmpty();
+    }
+
+    // Add email, username, password to users table
+    private boolean addUser(String email, String username, String password) {
+        String query = String.format(
+                "INSERT INTO users(email, username, password, creation_time) " +
+                        "VALUES ('%s', '%s', '%s', CURRENT_TIMESTAMP)",
+                email, username, password);
+        return jdbcTemplate.update(query) > 0;
+    }
 
     @PostMapping(
             value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public String register(@RequestBody SignupRequest request) {
         // There will still be race condition, because check and set are not atomic
-        if (users.containsKey(request.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        if (isEmailInUse(request.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already in use");
         }
-        users.put(request.getEmail(), List.of(request.getUsername(), request.getPassword()));
-        return "success";
-    }
+        if (isUsernameInUse(request.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User name already in use");
+        }
 
-    @GetMapping("/signup-test")
-    @ResponseBody
-    public ConcurrentHashMap<String, List<String>> registerTest() {
-        return users;
+        boolean addResult;
+        try {
+            addResult = addUser(request.getEmail(), request.getUsername(), request.getPassword());
+        } catch (Exception ex) {
+            System.out.println(">>>Exception!!" + ex.toString());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Registration failed");
+        }
+
+        if (addResult) {
+            return "success";
+        } else {
+            System.out.println(">>>Not sure what happened");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Not sure what happened");
+        }
     }
 
     @GetMapping("/login")
