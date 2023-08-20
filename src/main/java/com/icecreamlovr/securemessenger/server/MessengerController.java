@@ -61,6 +61,20 @@ public class MessengerController {
         return jdbcTemplate.update(query) > 0;
     }
 
+    private boolean verifyPassword(String email, String password) {
+        String query = String.format("SELECT * from users where email = '%s'", email);
+        List<String> result = jdbcTemplate.query(
+                query,
+                (rs, rowNum) -> rs.getString("password")
+        );
+        if (result.size() != 1) {
+            System.out.println(">>>verifyPassword got " + result.size() + " results");
+            return false;
+        }
+        PasswordHash ph = applicationContext.getBean(PasswordHash.class);
+        return ph.verify(password, result.get(0));
+    }
+
     @PostMapping(
             value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
@@ -73,9 +87,10 @@ public class MessengerController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User name already in use");
         }
 
+        PasswordHash ph = applicationContext.getBean(PasswordHash.class);
         boolean addResult;
         try {
-            addResult = addUser(request.getEmail(), request.getUsername(), request.getPassword());
+            addResult = addUser(request.getEmail(), request.getUsername(), ph.getHash(request.getPassword()));
         } catch (Exception ex) {
             System.out.println(">>>Exception!!" + ex.toString());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Registration failed");
@@ -107,8 +122,8 @@ public class MessengerController {
 
     @GetMapping("/password-test2")
     @ResponseBody
-    public String test2() {
-        return applicationContext.getBean(PasswordHash.class).verifySingleton();
+    public boolean test2() {
+        return verifyPassword("test22@test.com", "blahpw2");
     }
 
     @GetMapping("/password-test3")
@@ -117,8 +132,9 @@ public class MessengerController {
         PasswordHash ph = applicationContext.getBean(PasswordHash.class);
         String hash1 = ph.getHash("mysuperdupersecurepassword");
         String hash2 = ph.getHash("mysuperdupersecurepassword");
-        boolean matches = ph.verify("mysuperdupersecurepassword", hash1);
-        return String.format("hash1: %s\nhash2: %s\nveridy: %b", hash1, hash2, matches);
+        boolean matches1 = ph.verify("mysuperdupersecurepassword", hash1);
+        boolean matches2 = ph.verify("mysuperdupersecurepassword", hash2);
+        return String.format("hash1: %s\nhash2: %s\nveridy: %b %b", hash1, hash2, matches1, matches2);
     }
 
     @PostMapping(
