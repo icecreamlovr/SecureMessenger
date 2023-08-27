@@ -1,6 +1,7 @@
 package com.icecreamlovr.securemessenger.server;
 
 import com.icecreamlovr.securemessenger.server.authentication.RegistrationService;
+import com.icecreamlovr.securemessenger.server.models.LoginRequest;
 import com.icecreamlovr.securemessenger.server.models.MessageRequest;
 import com.icecreamlovr.securemessenger.server.models.MessageResponse;
 import com.icecreamlovr.securemessenger.server.models.SignupRequest;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
@@ -59,6 +59,25 @@ public class MessengerController {
         return "login";
     }
 
+
+    @PostMapping(
+            value = "/login", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public String login(@RequestBody LoginRequest request) {
+        boolean isValidUser = false;
+        try {
+            isValidUser = registrationService.verifyLogin(request.getEmail(), request.getPassword());
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Login failed due to unknown reason");
+        }
+
+        if (isValidUser) {
+            return "success";
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login failed");
+        }
+    }
+
     @GetMapping("/messenger")
     public String index() {
         return "index";
@@ -67,13 +86,13 @@ public class MessengerController {
     @GetMapping("/password-test2")
     @ResponseBody
     public boolean test2() {
-        return registrationService.verifyPassword("verify-refactor@test.com", "whatever");
+        return registrationService.verifyLogin("verify-refactor@test.com", "whatever");
     }
 
     @GetMapping("/password-test3")
     @ResponseBody
     public boolean test3() {
-        return registrationService.verifyPassword("verify-refactor@test.com", "whatever-wrong");
+        return registrationService.verifyLogin("verify-refactor@test.com", "whatever-wrong");
     }
 
     @PostMapping(

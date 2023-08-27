@@ -44,6 +44,10 @@ h2 {
     text-align: center;
 }
 
+div.loginResult {
+    min-height: 20px;
+}
+
 input {
     background-color: #eee;
     border: none;

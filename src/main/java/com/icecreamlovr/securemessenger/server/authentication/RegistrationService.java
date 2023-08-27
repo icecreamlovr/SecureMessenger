@@ -47,15 +47,19 @@ public class RegistrationService {
         return jdbcTemplate.update(query) > 0;
     }
 
-    public boolean verifyPassword(String email, String password) {
+    public boolean verifyLogin(String email, String password) {
         String query = String.format("SELECT * from users where email = '%s'", email);
         List<String> result = jdbcTemplate.query(
                 query,
                 (rs, rowNum) -> rs.getString("password")
         );
-        if (result.size() != 1) {
-            System.out.println(">>>verifyPassword got " + result.size() + " results");
+        if (result.size() == 0) {
+            // email not exist
             return false;
+        }
+        if (result.size() > 1) {
+            System.out.println(">>>verifyLogin got " + result.size() + " results");
+            throw new IllegalStateException(String.format("verifyLogin got more than 1 (%s) results", result.size()));
         }
         return encoder.matches(password, result.get(0));
     }
