@@ -6,7 +6,8 @@ class LoginForm extends React.Component {
     super(props);
     this.state = {
       email: "",
-      password: ""
+      password: "",
+      resultText: ""
     };
   }
 
@@ -26,7 +27,32 @@ class LoginForm extends React.Component {
 
    handleLogin = (event) => {
     event.preventDefault();
-    console.log(">>>" + this.state.email +  ">" + this.state.password +  ">");
+
+    const baseUrl = "http://" + window.location.host;
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: this.state.email, password: this.state.password })
+    };
+
+    fetch(baseUrl + "/login", requestOptions)
+      .then(response => {
+        if (response.ok) {
+          // Expect text on success
+          return response.text();
+        } else {
+          // Expect JSON on error
+          return response.json().then(response => {
+            throw { status: response.status, message: response.message };
+          });
+        }
+      })
+      .then(data => {
+        this.setState({resultText: "Login successfully!"});
+      })
+      .catch(error => {
+        this.setState({resultText: "Login failed: " + error.message});
+      });
   }
 
   render() {
@@ -35,6 +61,7 @@ class LoginForm extends React.Component {
         <div className="form-container">
           <h1>Messenger</h1>
           <h2>Log In :)</h2>
+          <div className="loginResult"><label>{this.state.resultText}</label></div>
           <input type="email" id="email" placeholder="Email" onInput={this.handleEmailInput}/>
           <input type="password" id="password" placeholder="Password" onInput={this.handlePasswordInput}/>
           <button type="button" onClick={this.handleLogin}>Log In</button>
