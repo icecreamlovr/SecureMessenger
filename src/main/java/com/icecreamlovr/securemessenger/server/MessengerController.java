@@ -1,5 +1,6 @@
 package com.icecreamlovr.securemessenger.server;
 
+import com.icecreamlovr.securemessenger.server.authentication.LoginService;
 import com.icecreamlovr.securemessenger.server.authentication.RegistrationService;
 import com.icecreamlovr.securemessenger.server.models.LoginRequest;
 import com.icecreamlovr.securemessenger.server.models.MessageRequest;
@@ -20,6 +21,9 @@ public class MessengerController {
 
     @Autowired
     private RegistrationService registrationService;
+
+    @Autowired
+    private LoginService loginService;
 
     @GetMapping("/signup")
     public String registrationPage() {
@@ -66,7 +70,7 @@ public class MessengerController {
     public String login(@RequestBody LoginRequest request) {
         boolean isValidUser = false;
         try {
-            isValidUser = registrationService.verifyLogin(request.getEmail(), request.getPassword());
+            isValidUser = loginService.verifyLogin(request.getEmail(), request.getPassword());
         } catch (IllegalStateException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Login failed due to unknown reason");
         }
@@ -86,13 +90,13 @@ public class MessengerController {
     @GetMapping("/password-test2")
     @ResponseBody
     public boolean test2() {
-        return registrationService.verifyLogin("verify-refactor@test.com", "whatever");
+        return loginService.verifyLogin("verify-refactor@test.com", "whatever");
     }
 
     @GetMapping("/password-test3")
     @ResponseBody
     public boolean test3() {
-        return registrationService.verifyLogin("verify-refactor@test.com", "whatever-wrong");
+        return loginService.verifyLogin("verify-refactor@test.com", "whatever-wrong");
     }
 
     @PostMapping(
