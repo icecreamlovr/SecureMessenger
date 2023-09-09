@@ -8,6 +8,8 @@ import com.icecreamlovr.securemessenger.server.models.MessageRequest;
 import com.icecreamlovr.securemessenger.server.models.MessageResponse;
 import com.icecreamlovr.securemessenger.server.models.SignupRequest;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,7 +72,7 @@ public class MessengerController {
     @PostMapping(
             value = "/login", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public String login(@RequestBody LoginRequest request) {
+    public String login(@RequestBody LoginRequest request, HttpServletResponse response) {
         boolean isValidUser = false;
         try {
             isValidUser = loginService.verifyLogin(request.getEmail(), request.getPassword());
@@ -78,11 +80,17 @@ public class MessengerController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Login failed due to unknown reason");
         }
 
-        if (isValidUser) {
-            return "success";
-        } else {
+        if (!isValidUser) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login failed");
         }
+
+        String token = jwtUtil.generate(request.getEmail());
+        Cookie cookie = new Cookie("user-token", token);
+        cookie.setMaxAge(JwtUtil.JWT_TOKEN_VALIDITY_SECONDS);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
+        return "success";
     }
 
     @PostMapping(
