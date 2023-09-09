@@ -1,6 +1,7 @@
 package com.icecreamlovr.securemessenger.server;
 
 import com.icecreamlovr.securemessenger.server.authentication.LoginService;
+import com.icecreamlovr.securemessenger.server.authentication.JwtUtil;
 import com.icecreamlovr.securemessenger.server.authentication.RegistrationService;
 import com.icecreamlovr.securemessenger.server.models.LoginRequest;
 import com.icecreamlovr.securemessenger.server.models.MessageRequest;
@@ -24,6 +25,9 @@ public class MessengerController {
 
     @Autowired
     private LoginService loginService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @GetMapping("/signup")
     public String registrationPage() {
@@ -63,7 +67,6 @@ public class MessengerController {
         return "login";
     }
 
-
     @PostMapping(
             value = "/login", consumes = "application/json", produces = "application/json")
     @ResponseBody
@@ -79,6 +82,24 @@ public class MessengerController {
             return "success";
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login failed");
+        }
+    }
+
+    @PostMapping(
+            value = "/test-jwt-generate", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public String testJwtGen(@RequestBody LoginRequest request) {
+        return jwtUtil.generate(request.getEmail());
+    }
+
+    @PostMapping(
+            value = "/test-jwt-verify", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public String testJwtVer(@RequestBody LoginRequest request) {
+        try {
+            return jwtUtil.verifyAndGetEmail(request.getPassword());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
     }
 
