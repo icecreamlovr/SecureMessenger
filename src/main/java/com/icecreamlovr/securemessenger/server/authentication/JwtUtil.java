@@ -17,7 +17,8 @@ public class JwtUtil {
     private static final JWTVerifier JWT_VERIFIER = JWT.require(HASH_ALGORITHM).build();
 
     // 5 hours.
-    private static final long JWT_TOKEN_VALIDITY_MS = 5 * 60 * 60 * 1000;
+    public static final long JWT_TOKEN_VALIDITY_MS = 5 * 60 * 60 * 1000;
+    public static final int JWT_TOKEN_VALIDITY_SECONDS = 5 * 60 * 60;
 
     /** Generate token with expiration date. */
     public String generate(String email) {
