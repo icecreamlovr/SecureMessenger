@@ -10,6 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class AuthenticationConfiguration {
 
+    // TODO(icecreamlovr): add additional request URL patterns.
+    private static final String[] REQUIRES_AUTHENTICATION = {"/messenger"};
+
     @Autowired
     private AuthenticationFilter authFilter;
 
@@ -23,7 +26,7 @@ public class AuthenticationConfiguration {
         FilterRegistrationBean <AuthenticationFilter> registrationBean = new FilterRegistrationBean();
 
         registrationBean.setFilter(authFilter);
-        registrationBean.addUrlPatterns("/messenger");
+        registrationBean.addUrlPatterns(REQUIRES_AUTHENTICATION);
         registrationBean.setOrder(2);
         return registrationBean;
     }
