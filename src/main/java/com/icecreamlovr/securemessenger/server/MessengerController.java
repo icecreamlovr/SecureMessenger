@@ -8,6 +8,7 @@ import com.icecreamlovr.securemessenger.server.models.MessageRequest;
 import com.icecreamlovr.securemessenger.server.models.MessageResponse;
 import com.icecreamlovr.securemessenger.server.models.SignupRequest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpStatus;
@@ -112,7 +113,8 @@ public class MessengerController {
     }
 
     @GetMapping("/messenger")
-    public String index() {
+    public String index(HttpServletRequest fullRequest) {
+        System.out.println(">>> after authentication, your email is " + fullRequest.getAttribute("email"));
         return "index";
     }
 
