@@ -8,8 +8,12 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.io.IOException;
 
 @Component
@@ -26,28 +30,33 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         Cookie[] cookies = req.getCookies();
 
-        System.out.println(">>> I am at auth filter lalala~");
-        System.out.println(jwtUtil);
-        System.out.println(">>> I am at auth filter lalala~ end");
-
         boolean authenticated = false;
         if (cookies != null){
             for (Cookie c : cookies) {
-                if ("user-token".equals(c.getName())) {
-                    System.out.println(">>>The user-token cookie is: " + c.getValue());
-                    String email = jwtUtil.verifyAndGetEmail(c.getValue());
-                    System.out.println(">>>The email is: " + email);
-                    req.setAttribute("email", email);
-                    authenticated = true;
+                if (!"user-token".equals(c.getName())) {
+                    continue;
+                }
+                String email;
+                try {
+                    email = jwtUtil.verifyAndGetEmail(c.getValue());
+                } catch (IllegalArgumentException ex) {
+                    System.out.println("[INFO] JWT verification failed: " + ex.getMessage());
                     break;
                 }
+                req.setAttribute("email", email);
+                authenticated = true;
+                break;
             }
         }
-        if (authenticated) {
-            System.out.println(">>>auth sucessful!");
-        } else {
-            System.out.println(">>>auth failed!");
+
+        if (!authenticated) {
+            System.out.println("[INFO] auth failed!");
+            HttpServletResponse resp = (HttpServletResponse) response;
+            resp.sendRedirect("/login");
+            return;
         }
+
+        System.out.println("[INFO] auth sucessful!");
         chain.doFilter(request, response);
     }
 
